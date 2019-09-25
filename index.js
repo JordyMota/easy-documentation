@@ -20,22 +20,44 @@ function verifyAnchor(anchor) {
 function handlChangeContent(dataRef) {
 	const pageData = pagesContent[dataRef];
 	let pageContent = '';
-	pageData.content.forEach((item)=> {
+	pageData.content.forEach( item => {
 		pageContent += renderDocPageItem(item);
 	});
 	const pageContentContainer = document.getElementById('page-content');
 	pageContentContainer.innerHTML = pageContent;
-	document.querySelectorAll('pre code').forEach((block) => {
-		hljs.highlightBlock(block);
+	document.querySelectorAll('pre code').forEach( item => {
+		hljs.highlightBlock(item);
 	});
 	pageContentContainer.innerHTML = cleanReplace(pageContentContainer.innerHTML);
-	document.querySelectorAll('[data-anchor]').forEach((item)=> {
+	document.querySelectorAll('[data-anchor]').forEach( item => {
 		item.onclick = ({target})=> {
 			setTimeout(()=> {
 				scrollToPoint(target.getAttribute('data-anchor'));
 			},0);
 		}
 	});
+
+	document.querySelectorAll('pre code').forEach( item => {
+		const svgCopy = document.createElement('copySvg');
+		item.appendChild(svgCopy);
+		document.querySelector('copySvg').outerHTML = renderSvgCopy();
+		item.querySelector('.copy-svg').onclick = ({target}) => {
+			copyCode(target.parentElement.textContent.trim());
+		}
+	});
+}
+
+function renderSvgCopy() {
+	return `
+		<svg viewBox="0 0 488.3 488.3" width="13vw" height="13vw" class="copy-svg">
+			<g>
+				<g>
+					<path d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124 C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124 c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z"/>
+					<path d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227 c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6 V38.6C439.65,17.3,422.35,0,401.05,0z"/>
+				</g>
+			</g>
+		</svg>
+	`;
 }
 
 function renderDocPageItem(item) {
@@ -73,7 +95,7 @@ function renderDocPageItem(item) {
 
 function setDocumentItemsActions() {
 	const docItems = document.querySelectorAll('[data-documentation-item]');
-	docItems.forEach((item)=> {
+	docItems.forEach( item => {
 		item.onclick = ({ target })=> {
 			handleSelectDocument(target);
 		}
@@ -82,8 +104,62 @@ function setDocumentItemsActions() {
 
 function scrollToPoint(id) {
     const scrollElement = document.querySelector(id);
+    if (!scrollElement)
+		return;
+	const oldElement = document.querySelector('active-anchor--js');
+	if (oldElement) {
+		oldElement.classList.remove('active-anchor--js','default-transition');
+	}
+    scrollElement.classList.add('default-transition');
+    scrollElement.classList.add('active-anchor--js');
+    setTimeout(()=> {
+    	scrollElement.classList.remove('active-anchor--js');
+    	setTimeout(()=> {
+    		scrollElement.classList.remove('default-transition');
+    	},400);
+    },1000);
     const headerHeight = parseFloat(window.getComputedStyle(document.querySelector('header')).height);
     document.querySelector('#page-content').scrollTop = (scrollElement.offsetTop - (headerHeight+80));
+}
+
+function copyCode(text='') {
+	if (!text)
+		return;
+	let textArea = document.createElement('textarea');
+	textArea.setAttribute('id','input-copy-text');
+	textArea.setAttribute('style','position: fixed; pointer-events: none; touch-action: none; opacity: 0; z-index: -1;');
+	document.body.appendChild(textArea);
+	textArea = document.getElementById('input-copy-text');
+	textArea.value = text;
+	textArea.select();
+	textArea.setSelectionRange(0, 99999);
+	document.execCommand("copy");
+	textArea.outerHTML = '';
+	presentToast('Código copiado para a área de transferência!');
+}
+
+var toastTimeout = null;
+function presentToast(text='') {
+	if (!text)
+		return;
+	clearTimeout(toastTimeout);
+	let toast = document.querySelector('.current-toast');
+	if (toast)
+		toast.outerHTML = '';
+	toast = document.createElement('div');
+	toast.setAttribute('class','current-toast toast-default fadeIn');
+	document.body.appendChild(toast);
+	toast = document.querySelector('.current-toast');
+	toast.innerHTML = text;
+	toastTimeout = setTimeout(()=> {
+		if (toast) {
+			toast.classList.remove('fadeIn');
+			toast.classList.add('fadeOut');
+			setTimeout(()=> {
+				toast.outerHTML = '';
+			},600)
+		}
+	},1820);
 }
 
 function genereateDocItems() {
