@@ -224,3 +224,7 @@ pre > code > .copy-svg {
 	font-size: 0.95em;
 	font-weight: bold;
 }
+
+ul > .document-list-item:last-child {
+	margin-bottom: 6vh;
+}
