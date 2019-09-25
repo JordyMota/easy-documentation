@@ -29,6 +29,7 @@ function handlChangeContent(dataRef) {
 		hljs.highlightBlock(item);
 	});
 	pageContentContainer.innerHTML = cleanReplace(pageContentContainer.innerHTML);
+	pageContentContainer.scrollTop = 0;
 	document.querySelectorAll('[data-anchor]').forEach( item => {
 		item.onclick = ({target})=> {
 			setTimeout(()=> {
@@ -130,12 +131,31 @@ function copyCode(text='') {
 	textArea.setAttribute('style','position: fixed; pointer-events: none; touch-action: none; opacity: 0; z-index: -1;');
 	document.body.appendChild(textArea);
 	textArea = document.getElementById('input-copy-text');
-	textArea.value = text;
+	textArea.value = removeComents(text);
 	textArea.select();
 	textArea.setSelectionRange(0, 99999);
 	document.execCommand("copy");
 	textArea.outerHTML = '';
 	presentToast('Código copiado para a área de transferência!');
+}
+
+function removeComents(text='') {
+	if (!text)
+		return;
+	let newText = text;
+	let hasComent = true;
+	while(hasComent) {
+		const comentStart = newText.indexOf('/*');
+		const comentEnd = newText.indexOf('*/');
+		if (comentStart < 0 || comentEnd < 0)
+			hasComent = false;
+		else {
+			let firstText = newText.slice(0,comentStart);
+			let lastText = newText.slice((comentEnd+2),(newText.length));
+			newText = firstText+lastText;
+		}
+	}
+	return newText;
 }
 
 var toastTimeout = null;
