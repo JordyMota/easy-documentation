@@ -225,6 +225,6 @@ pre > code > .copy-svg {
 	font-weight: bold;
 }
 
-ul > .document-list-item:last-child {
+ul > .document-list-item:last-child:not(.document-list-item--sub-item) {
 	margin-bottom: 6vh;
 }
