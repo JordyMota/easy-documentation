@@ -115,12 +115,20 @@
 	margin-left: calc(91.66666667% + 8px);
 }
 
-.reset-row-gutter {
-	padding-left: 0 !important;
+
+.reset-row-right-gutter {
 	padding-right: 0 !important;
+}
+
+.reset-row-left-gutter {
+	padding-left: 0 !important;
 }
 
 .reset-column-gutter {
 	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.reset-column-right-gutter {
 	margin-right: 0 !important;
 }
